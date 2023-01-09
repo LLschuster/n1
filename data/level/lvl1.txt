@@ -1,0 +1,15 @@
+starting: 
+0,0
+enemies: 
+5 2 1
+5 3 1
+5 4 1
+data:
+t4 w4
+t4 w4
+t4 t4
+t4 t4
+t4 t4
+t4 t4
+t4 t4
+t4 t4
