@@ -137,6 +137,7 @@ namespace ng
     void
     createSubRooms(DungeonRoom *masterRoom, uint32 minRoomHeight, uint32 minRoomWidth)
     {
+        Timer("createSubRooms");
         if (masterRoom->height > 2 * minRoomHeight && masterRoom->width > 2 * minRoomWidth)
         {
             DungeonRoom *subRoom1 = dungeonRoomInit();
@@ -266,6 +267,7 @@ namespace ng
     }
     DungeonRoom *createDungeon(uint32 height, uint32 width, uint32 minRoomHeight, uint32 minRoomWidth)
     {
+        Timer("createDungeon");
         // create rooms
         DungeonRoom *masterRoom = dungeonRoomInit();
         masterRoom->id = 0;

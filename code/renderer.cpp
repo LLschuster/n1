@@ -19,7 +19,7 @@ namespace ng
         }
 
         SDL_Renderer *sdlRenderer = SDL_CreateRenderer(sdlWindow,
-                                                       -1, SDL_RENDERER_ACCELERATED);
+                                                       -1, SDL_RENDERER_PRESENTVSYNC);
 
         if (sdlRenderer == NULL)
         {
@@ -58,6 +58,7 @@ namespace ng
 
     void Renderer::drawDungeon(DrawDungeonSprites sprites, DungeonRoom *rootRoom)
     {
+        Timer("drawDungeon");
         std::vector<DungeonRoom *> toCheckRooms;
         toCheckRooms.push_back(rootRoom);
         while (toCheckRooms.size() > 0)

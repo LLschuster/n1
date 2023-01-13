@@ -39,6 +39,7 @@ struct GameState
     ng::DungeonRoom *currentRootRoom;
 } gameState;
 
+#include "profile.cpp"
 #include "ng_math.cpp"
 #include "utils.cpp"
 #include "engine.cpp"
