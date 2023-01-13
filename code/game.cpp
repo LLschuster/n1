@@ -98,12 +98,14 @@ int main(int argc, char **argv)
 
     rm->loadTextures();
 
-    ng::Player player;
-    ng::Sprite dragonSprite = ng::createSprite(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, 100, 100, rm->getTexture("dragon.png"));
-    player.sprite = &dragonSprite;
-    player.speed = 100;
-    player.cameraOffset = {dragonSprite.position.x, dragonSprite.position.y};
-    gameState.player = player;
+    {
+        ng::Player player;
+        ng::Sprite dragonSprite = ng::createSprite(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, 100, 100, rm->getTexture("dragon.png"));
+        player.sprite = &dragonSprite;
+        player.speed = 100;
+        player.cameraOffset = {dragonSprite.position.x, dragonSprite.position.y};
+        gameState.player = player;
+    }
 
     struct SDL_Rect floorTileTextCoord = {2 * 32, 6 * 32, 32, 32};
     ng::Sprite floorTileSprite = ng::createSprite(120, 140, 100, 100, rm->getTexture("dg_dungeon32.gif"), &floorTileTextCoord);
@@ -120,7 +122,7 @@ int main(int argc, char **argv)
         SDL_RenderClear(rd->renderer);
 
         rd->drawDungeon(dungeonSprites, gameState.currentRootRoom);
-        rd->drawSprite(&dragonSprite);
+        rd->drawSprite(gameState.player.sprite);
         SDL_RenderPresent(rd->renderer);
 
         SDL_Delay(16);

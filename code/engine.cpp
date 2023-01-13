@@ -119,7 +119,7 @@ namespace ng
         ~Logger(){};
     };
 
-    Randomizer dungeonRandomizer = getRandomInt(0, 100);
+    Randomizer dungeonRandomizer = getRandomInt(0, 50);
 
     DungeonRoom *dungeonRoomInit()
     {
@@ -149,7 +149,7 @@ namespace ng
 
             // odd for vertical, even for horizontal
             int directionOfSplit = dungeonRandomizer.distribution.intD(dungeonRandomizer.generator);
-            int guessTries = 10;
+            int guessTries = 5;
             if (directionOfSplit % 2 != 0)
             {
                 while (guessTries >= 0)
@@ -251,13 +251,7 @@ namespace ng
                 }
             }
 
-            // if (subRoom1->width == 0 || subRoom2->width == 0)
-            // {
-            //     return;
-            // }
-
-            subRoom1->sisterRoom = subRoom2;
-            // subRoom2->sisterRoom = subRoom1;
+            subRoom1->sisterRoom = subRoom2; 
             masterRoom->subRoom = subRoom1;
             createSubRooms(subRoom1, minRoomHeight, minRoomWidth);
             createSubRooms(subRoom2, minRoomHeight, minRoomWidth);
@@ -275,8 +269,8 @@ namespace ng
         masterRoom->width = width;
         masterRoom->centerX = width / 2;
         masterRoom->centerY = height / 2;
-        masterRoom->sisterRoom = nullptr;
-        masterRoom->subRoom = nullptr;
+        // masterRoom->sisterRoom = nullptr;
+        // masterRoom->subRoom = nullptr;
         createSubRooms(masterRoom, minRoomHeight, minRoomWidth);
         return masterRoom;
     }

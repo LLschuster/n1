@@ -60,6 +60,10 @@ namespace ng
     {
         Timer("drawDungeon");
         std::vector<DungeonRoom *> toCheckRooms;
+        int32 floorSpriteWidth = sprites.floorSprite->width;
+        int32 floorSpriteHeight = sprites.floorSprite->height;
+        int32 roomEdgesInTiles = 4; // leave enough space to place a corridor
+
         toCheckRooms.push_back(rootRoom);
         while (toCheckRooms.size() > 0)
         {
@@ -74,10 +78,8 @@ namespace ng
             if (!currentRoom->subRoom)
             {
                 {
-                    int32 tilesWidthCount = (currentRoom->width / sprites.floorSprite->width) - 4; // TODO sprite has constant width??
-                    int32 tilesHeightCount = (currentRoom->height / sprites.floorSprite->height) - 4;
-                    // int32 restWidthTile = currentRoom->width % (uint32)sprite->width;
-                    // int32 restHeightTile = currentRoom->height % (uint32)sprite->height;
+                    int32 tilesWidthCount = (currentRoom->width / floorSpriteWidth) - roomEdgesInTiles; // TODO sprite has constant width??
+                    int32 tilesHeightCount = (currentRoom->height / floorSpriteHeight) - roomEdgesInTiles;
 
                     for (int32 x = 0; x < tilesWidthCount; x++)
                     {
@@ -102,7 +104,7 @@ namespace ng
                 {
                     if (currentRoom->corridor.startPos.x == currentRoom->corridor.endPos.x){
                         // Draw vertical corridor
-                        int32 tileCount = std::abs(currentRoom->corridor.startPos.y - currentRoom->corridor.endPos.y) / sprites.floorSprite->height;
+                        int32 tileCount = std::abs(currentRoom->corridor.startPos.y - currentRoom->corridor.endPos.y) / floorSpriteHeight;
                         int32 direction = currentRoom->corridor.startPos.y - currentRoom->corridor.endPos.y > 0 ? -1 : 1;
                         for (int32 x = 0; x <= tileCount; x++){
                             Sprite *toDrawSprite = sprites.floorSprite;
@@ -112,7 +114,7 @@ namespace ng
                         }
                     } else {
                         // Draw horizontal corridor
-                        int32 tileCount = std::abs(currentRoom->corridor.startPos.x - currentRoom->corridor.endPos.x) / sprites.floorSprite->width;
+                        int32 tileCount = std::abs(currentRoom->corridor.startPos.x - currentRoom->corridor.endPos.x) / floorSpriteWidth;
                         int32 direction = currentRoom->corridor.startPos.x - currentRoom->corridor.endPos.x > 0 ? -1 : 1;
                         for (int32 x = 0; x <= tileCount; x++){
                             Sprite *toDrawSprite = sprites.floorSprite;
