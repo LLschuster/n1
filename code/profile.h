@@ -15,8 +15,8 @@ class Timer {
         void stopTimer(){
             auto timeEnd = std::chrono::high_resolution_clock::now();
 
-            long long timeStartInMicro = std::chrono::time_point_cast<std::chrono::microseconds>(timeStart).time_since_epoch().count();
-            long long timeEndInMicro = std::chrono::time_point_cast<std::chrono::microseconds>(timeEnd).time_since_epoch().count();
+            int64 timeStartInMicro = std::chrono::time_point_cast<std::chrono::microseconds>(timeStart).time_since_epoch().count();
+            int64 timeEndInMicro = std::chrono::time_point_cast<std::chrono::microseconds>(timeEnd).time_since_epoch().count();
 
             stopped = true;
 
@@ -26,5 +26,5 @@ class Timer {
     private:
         const char *m_name;
         bool stopped;
-        std::chrono::time_point<std::chrono::steady_clock> timeStart;
+        std::chrono::time_point<std::chrono::high_resolution_clock> timeStart;
 };

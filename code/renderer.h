@@ -3,6 +3,7 @@
 
 namespace ng
 {
+    static const int32 roomEdgesInTiles = 4; // leave enough space to place a corridor
     struct DrawDungeonSprites
     {
         Sprite *floorSprite;
@@ -36,9 +37,11 @@ namespace ng
 
         void drawRect(float x, float y, float w, float h);
 
-        void drawSprite(Sprite *sprite);
+        void drawSprite(Sprite *sprite, bool withOffset = true);
 
         void drawDungeon(DrawDungeonSprites sprites, DungeonRoom *rootRoom);
+
+        void drawEnemies(int32 amountToRender);
 
     private:
         Renderer() {}

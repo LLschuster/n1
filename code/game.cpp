@@ -20,11 +20,14 @@
 typedef uint32_t uint32;
 typedef uint8_t uint8;
 typedef int32_t int32;
+typedef int64_t int64;
 
+#include "profile.h"
 #include "engine.h"
 #include "main.h"
 #include "ng_math.h"
 #include "renderer.h"
+#include "resourceManager.h"
 
 #define lg ng::Logger::getInstance()
 #define rd ng::Renderer::getInstance()
@@ -37,9 +40,10 @@ struct GameState
     bool gameRunning = true;
     ng::Player player;
     ng::DungeonManager dungeonManager;
+    ng::Enemy enemies[100];
+    int32 amountOfEnemies = 0;
 } gameState;
 
-#include "profile.cpp"
 #include "ng_math.cpp"
 #include "utils.cpp"
 #include "engine.cpp"
@@ -77,7 +81,7 @@ void handleGameEvents()
             }
             if (event.key.keysym.scancode == SDL_SCANCODE_C)
             {
-                gameState.player.cameraOffset.x += gameState.dungeonManager.rootRoom->centerX + gameState.player.sprite->position.x;
+                gameState.player.cameraOffset.x += gameState.dungeonManager.rootRoom->centerX + gameState.player.sprite.position.x;
             }
         }
     }
@@ -100,8 +104,9 @@ int main(int argc, char **argv)
 
     {
         ng::Player player;
-        ng::Sprite dragonSprite = ng::createSprite(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, 100, 100, rm->getTexture("dragon.png"));
-        player.sprite = &dragonSprite;
+        ng::Sprite dragonSprite = ng::createSprite(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100,
+                                                   100, 100, rm->getTexture("dragon.png"));
+        player.sprite = dragonSprite;
         player.speed = 100;
         player.cameraOffset = {dragonSprite.position.x, dragonSprite.position.y};
         gameState.player = player;
@@ -114,7 +119,11 @@ int main(int argc, char **argv)
     ng::Sprite wallTileSprite = ng::createSprite(120, 140, 100, 100, rm->getTexture("dg_dungeon32.gif"), &wallTileTextCoord);
     ng::DrawDungeonSprites dungeonSprites = {&floorTileSprite, &wallTileSprite};
 
-    gameState.dungeonManager.rootRoom = ng::createDungeon(4000, 4000, dungeonSprites.floorSprite->height * 8, dungeonSprites.floorSprite->width * 8);
+    gameState.dungeonManager.rootRoom =
+        ng::createDungeon(4000, 4000,
+                          dungeonSprites.floorSprite->height * 8,
+                          dungeonSprites.floorSprite->width * 8);
+    ng::spawnEnemies(5, dungeonSprites.floorSprite->width);
 
     while (gameState.gameRunning)
     {
@@ -123,7 +132,8 @@ int main(int argc, char **argv)
         SDL_RenderClear(rd->renderer);
 
         rd->drawDungeon(dungeonSprites, gameState.dungeonManager.rootRoom);
-        rd->drawSprite(gameState.player.sprite);
+        rd->drawSprite(&gameState.player.sprite, false);
+        rd->drawEnemies(gameState.amountOfEnemies);
         SDL_RenderPresent(rd->renderer);
 
         SDL_Delay(16);

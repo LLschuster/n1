@@ -1,10 +1,9 @@
-#include "resourceManager.h"
 
 namespace ng
 {
     void ResourceManager::loadTextures()
     {
-        Timer("Load game textures");
+        Timer timer("Load game textures");
         char graphicsPath[200];
         memset(graphicsPath, 0, sizeof(graphicsPath));
         concatStrings(graphicsPath, (char*)DATA_PATH, "g//");

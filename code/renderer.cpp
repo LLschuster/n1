@@ -2,6 +2,7 @@ namespace ng
 {
     uint32 Renderer::startup()
     {
+        Timer timer("Renderer::startup");
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
         {
             printf("SDL could not be initialized %s", SDL_GetError());
@@ -45,24 +46,41 @@ namespace ng
         SDL_RenderDrawRect(renderer, &rect);
     }
 
-    void Renderer::drawSprite(Sprite *sprite)
+    void Renderer::drawSprite(Sprite *sprite, bool withOffset)
     {
+        if (!sprite){
+            return;
+        }
+
+        Position offset = Position{0,0};
+        if (withOffset){
+            offset = gameState.player.cameraOffset;
+        }
+
         SDL_Rect destRect;
-        destRect.x = sprite->position.x;
-        destRect.y = sprite->position.y;
+        destRect.x = sprite->position.x - offset.x;
+        destRect.y = sprite->position.y - offset.y;
         destRect.h = sprite->height;
         destRect.w = sprite->width;
 
         SDL_RenderCopy(renderer, sprite->texture, sprite->textCoord, &destRect);
     }
 
+    void Renderer::drawEnemies(int32 amountToRender)
+    {
+        Enemy *enemyList = gameState.enemies;
+        for (int32 x = 0; x < amountToRender; ++x)
+        {
+            drawSprite(&enemyList[x].sprite);
+        }
+    }
+
     void Renderer::drawDungeon(DrawDungeonSprites sprites, DungeonRoom *rootRoom)
     {
-        Timer("drawDungeon");
+        Timer timer("drawDungeon");
         std::vector<DungeonRoom *> toCheckRooms;
         int32 floorSpriteWidth = sprites.floorSprite->width;
         int32 floorSpriteHeight = sprites.floorSprite->height;
-        int32 roomEdgesInTiles = 4; // leave enough space to place a corridor
 
         toCheckRooms.push_back(rootRoom);
         while (toCheckRooms.size() > 0)
@@ -78,7 +96,7 @@ namespace ng
             if (!currentRoom->subRoom)
             {
                 {
-                    int32 tilesWidthCount = (currentRoom->width / floorSpriteWidth) - roomEdgesInTiles; // TODO sprite has constant width??
+                    int32 tilesWidthCount = (currentRoom->width / floorSpriteWidth) - roomEdgesInTiles; 
                     int32 tilesHeightCount = (currentRoom->height / floorSpriteHeight) - roomEdgesInTiles;
 
                     for (int32 x = 0; x < tilesWidthCount; x++)
@@ -94,8 +112,8 @@ namespace ng
                             {
                                 toDrawSprite = sprites.floorSprite;
                             }
-                            toDrawSprite->position.x = currentRoom->centerX - ((x - tilesWidthCount / 2) * toDrawSprite->width) - gameState.player.cameraOffset.x;
-                            toDrawSprite->position.y = currentRoom->centerY - ((y - tilesHeightCount / 2) * toDrawSprite->height) - gameState.player.cameraOffset.y;
+                            toDrawSprite->position.x = currentRoom->centerX - ((x - tilesWidthCount / 2) * toDrawSprite->width);
+                            toDrawSprite->position.y = currentRoom->centerY - ((y - tilesHeightCount / 2) * toDrawSprite->height);
                             drawSprite(toDrawSprite);
                         }
                     }
@@ -108,8 +126,8 @@ namespace ng
                         int32 direction = currentRoom->corridor.startPos.y - currentRoom->corridor.endPos.y > 0 ? -1 : 1;
                         for (int32 x = 0; x <= tileCount; x++){
                             Sprite *toDrawSprite = sprites.floorSprite;
-                            toDrawSprite->position.x = currentRoom->corridor.startPos.x - gameState.player.cameraOffset.x;
-                            toDrawSprite->position.y = currentRoom->corridor.startPos.y + (direction * (x * toDrawSprite->height)) - gameState.player.cameraOffset.y;
+                            toDrawSprite->position.x = currentRoom->corridor.startPos.x;
+                            toDrawSprite->position.y = currentRoom->corridor.startPos.y + (direction * (x * toDrawSprite->height));
                             drawSprite(toDrawSprite);
                         }
                     } else {
@@ -118,8 +136,8 @@ namespace ng
                         int32 direction = currentRoom->corridor.startPos.x - currentRoom->corridor.endPos.x > 0 ? -1 : 1;
                         for (int32 x = 0; x <= tileCount; x++){
                             Sprite *toDrawSprite = sprites.floorSprite;
-                            toDrawSprite->position.x = currentRoom->corridor.startPos.x + (direction * (x * toDrawSprite->width)) - gameState.player.cameraOffset.x;
-                            toDrawSprite->position.y = currentRoom->corridor.startPos.y - gameState.player.cameraOffset.y;
+                            toDrawSprite->position.x = currentRoom->corridor.startPos.x + (direction * (x * toDrawSprite->width));
+                            toDrawSprite->position.y = currentRoom->corridor.startPos.y;
                             drawSprite(toDrawSprite);
                         }
                     }

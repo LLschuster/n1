@@ -41,6 +41,7 @@ namespace ng
 
         uint32 startup()
         {
+            Timer("ResourceManager::startup");
             for (char *resourceName : graphicsResources)
             {
                 resourceMap[resourceName] = nullptr;

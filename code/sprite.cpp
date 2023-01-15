@@ -5,8 +5,9 @@ namespace ng
 
 
     Sprite
-    createSprite(int32 x, int32 y, int32 _height, int32 _width, SDL_Texture *_texture, SDL_Rect *_textCoord = nullptr)
+    createSprite(int32 x, int32 y, int32 _height, int32 _width, SDL_Texture *_texture, SDL_Rect *_textCoord)
     {
+        Timer timer("createSprite");
         Sprite newSprite;
         Position position;
         position.x = x;

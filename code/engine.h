@@ -28,11 +28,17 @@ namespace ng
         SDL_Texture *texture;
     };
 
+    struct Enemy 
+    {
+        int32 speed;
+        Sprite sprite;
+    };
+
     struct Player 
     {
         int32 speed;
         Position cameraOffset;
-        Sprite *sprite;
+        Sprite sprite;
     };
 
     struct DungeonCorridor{
@@ -65,7 +71,8 @@ namespace ng
             room->sisterRoom = NULL;
             free(room);
         }
-        void destroyDungeon(){
+
+        void destroyDungeon() {
             leafRooms.empty();
             std::vector<DungeonRoom*> toFree;
             toFree.reserve(1000);
@@ -97,6 +104,8 @@ namespace ng
     };
 
     DungeonRoom *createDungeon(uint32 height, uint32 width, uint32 minRoomHeight, uint32 minRoomWidth);
+    Sprite
+    createSprite(int32 x, int32 y, int32 _height, int32 _width, SDL_Texture *_texture, SDL_Rect *_textCoord = nullptr);
 }
 
 #endif

@@ -24,6 +24,7 @@ namespace ng
 
         uint32 startup()
         {
+            Timer timer("FileLogger::startup");
             time_t rawTime;
             struct tm *timeInfo;
             time(&rawTime);
@@ -119,7 +120,7 @@ namespace ng
         ~Logger(){};
     };
 
-    Randomizer dungeonRandomizer = getRandomInt(0, 50);
+    Randomizer dungeonRandomizer = getRandomInt(0, 20);
 
     DungeonRoom *dungeonRoomInit()
     {
@@ -137,8 +138,8 @@ namespace ng
     void
     createSubRooms(DungeonRoom *masterRoom, uint32 minRoomHeight, uint32 minRoomWidth)
     {
-        Timer("createSubRooms");
-        if (masterRoom->height > 2 * minRoomHeight && masterRoom->width > 2 * minRoomWidth)
+        Timer timer("createSubRooms");
+        if (masterRoom->height >= 2 * minRoomHeight && masterRoom->width >= 2 * minRoomWidth)
         {
             DungeonRoom *subRoom1 = dungeonRoomInit();
             DungeonRoom *subRoom2 = dungeonRoomInit();
@@ -149,7 +150,7 @@ namespace ng
 
             // odd for vertical, even for horizontal
             int directionOfSplit = dungeonRandomizer.distribution.intD(dungeonRandomizer.generator);
-            int guessTries = 5;
+            int guessTries = 2;
             if (directionOfSplit % 2 != 0)
             {
                 while (guessTries >= 0)
@@ -158,7 +159,7 @@ namespace ng
                     int pointOfSplit = randomWidth.distribution.intD(randomWidth.generator);
                     uint32 subRoom1Width = pointOfSplit;
                     uint32 subRoom2Width = masterRoom->width - pointOfSplit;
-                    if (subRoom1Width < minRoomWidth || subRoom2Width < minRoomWidth) 
+                    if (subRoom1Width < minRoomWidth || subRoom2Width < minRoomWidth)
                     {
                         if (guessTries <= 0)
                         {
@@ -251,7 +252,7 @@ namespace ng
                 }
             }
 
-            subRoom1->sisterRoom = subRoom2; 
+            subRoom1->sisterRoom = subRoom2;
             masterRoom->subRoom = subRoom1;
             createSubRooms(subRoom1, minRoomHeight, minRoomWidth);
             createSubRooms(subRoom2, minRoomHeight, minRoomWidth);
@@ -263,7 +264,7 @@ namespace ng
     }
     DungeonRoom *createDungeon(uint32 height, uint32 width, uint32 minRoomHeight, uint32 minRoomWidth)
     {
-        Timer("createDungeon");
+        Timer timer("createDungeon");
         // create rooms
         DungeonRoom *masterRoom = dungeonRoomInit();
         masterRoom->id = 0;
@@ -271,10 +272,38 @@ namespace ng
         masterRoom->width = width;
         masterRoom->centerX = width / 2;
         masterRoom->centerY = height / 2;
-        // masterRoom->sisterRoom = nullptr;
-        // masterRoom->subRoom = nullptr;
         createSubRooms(masterRoom, minRoomHeight, minRoomWidth);
         return masterRoom;
+    }
+
+    void spawnEnemies(int32 numberToSpawnPerRoom, int32 floorTileSize)
+    {
+        Timer timer("spawnEnemies");
+        std::vector<DungeonRoom *> leafRooms = gameState.dungeonManager.leafRooms;
+        for (int32 i = 0; i < leafRooms.size(); ++i)
+        {
+            auto room = leafRooms[i];
+
+            // +2 on edges to account for walls
+            int32 availableRoomWidth = (room->width / floorTileSize) - (roomEdgesInTiles + 2);
+            int32 availableRoomHeight = (room->height / floorTileSize) - (roomEdgesInTiles + 2);
+            Randomizer offsetXRandomizer = getRandomInt(-(availableRoomWidth / 2), availableRoomWidth / 2);
+            Randomizer offsetYRandomizer = getRandomInt(-(availableRoomHeight / 2), availableRoomHeight / 2);
+            for (int32 x = 0; x < numberToSpawnPerRoom; ++x)
+            {
+                Enemy *enemy = &(gameState.enemies[gameState.amountOfEnemies]);
+                enemy->speed = 20;
+
+                int32 positionX = room->centerX + (offsetXRandomizer.distribution.intD(offsetXRandomizer.generator) * floorTileSize);
+                int32 positionY = room->centerY + (offsetYRandomizer.distribution.intD(offsetYRandomizer.generator) * floorTileSize);
+
+                Sprite enemySprite =
+                    createSprite(positionX, positionY,
+                                 100, 100, rm->getTexture("goblin1.png"));
+                enemy->sprite = enemySprite;
+                gameState.amountOfEnemies += 1;
+            }
+        }
     }
 }
 /*
