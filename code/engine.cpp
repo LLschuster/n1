@@ -255,8 +255,10 @@ namespace ng
             masterRoom->subRoom = subRoom1;
             createSubRooms(subRoom1, minRoomHeight, minRoomWidth);
             createSubRooms(subRoom2, minRoomHeight, minRoomWidth);
+            return;
         }
 
+        gameState.dungeonManager.leafRooms.push_back(masterRoom);
         return;
     }
     DungeonRoom *createDungeon(uint32 height, uint32 width, uint32 minRoomHeight, uint32 minRoomWidth)

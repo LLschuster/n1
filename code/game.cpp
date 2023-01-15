@@ -36,7 +36,7 @@ struct GameState
 {
     bool gameRunning = true;
     ng::Player player;
-    ng::DungeonRoom *currentRootRoom;
+    ng::DungeonManager dungeonManager;
 } gameState;
 
 #include "profile.cpp"
@@ -77,7 +77,7 @@ void handleGameEvents()
             }
             if (event.key.keysym.scancode == SDL_SCANCODE_C)
             {
-                gameState.player.cameraOffset.x += gameState.currentRootRoom->centerX + gameState.player.sprite->position.x;
+                gameState.player.cameraOffset.x += gameState.dungeonManager.rootRoom->centerX + gameState.player.sprite->position.x;
             }
         }
     }
@@ -107,13 +107,14 @@ int main(int argc, char **argv)
         gameState.player = player;
     }
 
+    gameState.dungeonManager.init();
     struct SDL_Rect floorTileTextCoord = {2 * 32, 6 * 32, 32, 32};
     ng::Sprite floorTileSprite = ng::createSprite(120, 140, 100, 100, rm->getTexture("dg_dungeon32.gif"), &floorTileTextCoord);
     struct SDL_Rect wallTileTextCoord = {1 * 32, 0 * 32, 32, 32};
     ng::Sprite wallTileSprite = ng::createSprite(120, 140, 100, 100, rm->getTexture("dg_dungeon32.gif"), &wallTileTextCoord);
     ng::DrawDungeonSprites dungeonSprites = {&floorTileSprite, &wallTileSprite};
 
-    gameState.currentRootRoom = ng::createDungeon(4000, 4000, dungeonSprites.floorSprite->height * 8, dungeonSprites.floorSprite->width * 8);
+    gameState.dungeonManager.rootRoom = ng::createDungeon(4000, 4000, dungeonSprites.floorSprite->height * 8, dungeonSprites.floorSprite->width * 8);
 
     while (gameState.gameRunning)
     {
@@ -121,13 +122,14 @@ int main(int argc, char **argv)
         SDL_SetRenderDrawColor(rd->renderer, 255, 180, 255, 255);
         SDL_RenderClear(rd->renderer);
 
-        rd->drawDungeon(dungeonSprites, gameState.currentRootRoom);
+        rd->drawDungeon(dungeonSprites, gameState.dungeonManager.rootRoom);
         rd->drawSprite(gameState.player.sprite);
         SDL_RenderPresent(rd->renderer);
 
         SDL_Delay(16);
     }
 
+    gameState.dungeonManager.destroyDungeon();
     lg->shutdown();
     rd->shutdown();
     rm->shutdown();

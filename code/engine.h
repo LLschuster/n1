@@ -52,6 +52,43 @@ namespace ng
         DungeonRoom *sisterRoom;
     };
 
+    struct DungeonManager 
+    {
+        DungeonRoom *rootRoom;
+        std::vector<DungeonRoom*> leafRooms;
+        void init(){
+            leafRooms.reserve(1000);
+            rootRoom = nullptr;
+        }
+        void freeRoom(DungeonRoom *room){
+            room->subRoom = NULL;
+            room->sisterRoom = NULL;
+            free(room);
+        }
+        void destroyDungeon(){
+            leafRooms.empty();
+            std::vector<DungeonRoom*> toFree;
+            toFree.reserve(1000);
+            toFree.push_back(rootRoom);
+            while (toFree.size() > 0){
+                auto currentRoom = toFree[toFree.size() - 1];
+                toFree.pop_back();
+
+                if (!currentRoom){
+                    continue;
+                }
+
+                if (currentRoom->subRoom){
+                    toFree.push_back(currentRoom->subRoom);
+                    toFree.push_back(currentRoom->subRoom->sisterRoom);
+                }
+
+                freeRoom(currentRoom);
+            }
+            rootRoom = nullptr;
+        }
+    };
+
     class EngineSystem
     {
         std::string type;
